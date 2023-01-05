@@ -2,7 +2,8 @@ import datetime
 import pickle
 import streamlit as st
 from classes.team import Team
-user = st.session_state.user
+from classes.user import User
+user = st.session_state.user # type: User
 
 
 st.set_page_config(page_title="Skio - Importa/Esporta Dati", page_icon="❄️", layout="wide")

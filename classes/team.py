@@ -46,9 +46,10 @@ class Team:
         df.index += 1
         return df
 
-    def export_data(self):
+    # @st.cache
+    def trainings_df(self):
         """
-        Create DataFrame to contain all runs of each training for exporting a csv.
+        Create DataFrame to contain all runs of each training.
         """        
         data = []
         for i in range(len(self.trainings)):
@@ -62,9 +63,13 @@ class Team:
                 self.trainings[i].data[j][1],
             ] for j in range(len(self.trainings[i].data))]
 
-        df = pd.DataFrame(
+        return pd.DataFrame(
             data,
             columns=["id_training", "date", "name", "discipline", "id_run", "athlete", "time"]
         )
-        
-        return df.to_csv().encode('utf-8')
+
+    def export_data(self):
+        """
+        Export all trainings to a csv.
+        """
+        return self.trainings_df().to_csv().encode('utf-8')

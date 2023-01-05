@@ -1,5 +1,7 @@
 import streamlit as st
-user = st.session_state.user
+from classes.user import User
+user = st.session_state.user # type: User
+
 
 st.set_page_config(page_title="Skio - Aggiunta Allenamento", page_icon="❄️", layout="wide")
 st.header("Aggiunta Allenamento 🎿")
