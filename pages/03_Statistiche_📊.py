@@ -5,7 +5,7 @@ from classes.user import User
 user = st.session_state.user # type: User
 
 
-st.set_page_config(page_title="Skio - Statistiche", page_icon="❄️", layout="wide")
+st.set_page_config(page_title="Skio - Statistiche", page_icon="❄️")
 st.header("Statistiche 📊")
 
 # Frame data
