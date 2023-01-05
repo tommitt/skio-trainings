@@ -46,4 +46,4 @@ chart = alt.Chart(bar_data).mark_bar(
         column='Disciplina'
         )
 
-st.altair_chart(chart, theme="streamlit")
+st.altair_chart(chart, theme=None)
