@@ -34,8 +34,7 @@ class Team:
         """
         if len(self.training.data) > 0:
             self.trainings.append(self.training)
-        self.training = self.trainings[i]
-        self.trainings.pop(i)
+        self.training = self.trainings.pop(i)
         st_session_state.set_chosen_training(self.training)
     
     def display_team(self):
