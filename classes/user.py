@@ -10,7 +10,6 @@ class User:
     def load_team(self, team):
         self.team = team
         st_session_state.init_add_fields()
-        st_session_state.set_chosen_training(self.team.training)
 
     def clear_team(self):
         self.team = Team()

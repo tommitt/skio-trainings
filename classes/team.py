@@ -19,13 +19,14 @@ class Team:
             self.athletes.append(name)
             st_session_state.init_add_fields()
 
-    def add_training(self):
+    def add_training(self, init_training=True):
         """
         Store the current training in a list.
         """
         self.trainings.append(self.training)
-        self.training = Training()
         st_session_state.init_add_fields()
+        if init_training:
+            self.training = Training()
 
     def select_training(self, i):
         """
@@ -33,9 +34,8 @@ class Team:
         Make the selected training the new current one.
         """
         if len(self.training.data) > 0:
-            self.trainings.append(self.training)
+            self.add_training(init_training=False)
         self.training = self.trainings.pop(i)
-        st_session_state.set_chosen_training(self.training)
     
     def display_team(self):
         """

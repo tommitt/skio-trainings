@@ -1,13 +1,13 @@
+import datetime
 import pandas as pd
 import streamlit as st
 from utils import st_session_state
 
 class Training:
     def __init__(self):
-        st_session_state.init_new_training()
-        self.name = st.session_state["training_name"]
-        self.date = st.session_state["training_date"]
-        self.discipline = st.session_state["training_discipline"]
+        self.name = ''
+        self.date = datetime.date.today()
+        self.discipline = 'ND'
         self.data = []
 
     def add_run(self, dnf=False):
