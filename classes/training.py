@@ -33,12 +33,14 @@ class Training:
         Order athletes by best lap and highlight the best lap.
         """
         df = pd.DataFrame(data=self.data, columns=["Atleta", "Tempo"])
-        df = df.replace("DNF", 1000)
+        
+        # treatment of DNF: transform to a high value
+        df["Tempo"] = df["Tempo"].replace("DNF", 1000)
 
         # unstack laps on columns
         df["Giro"] = df.groupby("Atleta").transform("cumcount")
         df = df.set_index(["Atleta", "Giro"]).unstack()
-        lap_cols = df.columns.get_level_values("Giro")
+        lap_cols = (df.columns.get_level_values("Giro").values + 1).astype(str)
         df.columns = lap_cols
 
         # order by best lap
@@ -47,4 +49,8 @@ class Training:
         df.index = df.index + 1
         
         # return best lap highlighted
-        return df.style.highlight_min(subset=lap_cols, axis=1, color="grey").format(precision=2, na_rep=' ')
+        return df.style.highlight_min(
+            subset=lap_cols,
+            axis=1,
+            color="grey"
+            ).format(precision=2, na_rep=' ')
