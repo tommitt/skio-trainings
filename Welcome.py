@@ -3,10 +3,7 @@ from classes.user import User
 
 st.set_page_config(page_title="Skio - Archivia i tuoi allenamenti!", page_icon="❄️")
 
-try:
-    if st.session_state.user is None:
-        st.session_state.user = User()
-except:
+if 'user' not in st.session_state:
     st.session_state.user = User()
 
 st.title("Welcome to Skio! ❄️")
