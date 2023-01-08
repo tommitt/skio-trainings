@@ -29,15 +29,16 @@ st.dataframe(df_trainings_info.drop(columns=["ID Allenamento"]))
 st.write("ID Allenamento")
 col1, buff, col2, col3 = st.columns(4)
 idx_selected = col1.selectbox("ID Allenamento", df_trainings_info.index, label_visibility="collapsed")
+id_selected = None if df_trainings_info.empty else df_trainings_info.loc[idx_selected, "ID Allenamento"]
 col2.button(
     "Visualizza Allenamento",
     on_click=user.team.select_training,
-    args=[df_trainings_info.loc[idx_selected, "ID Allenamento"]],
+    args=[id_selected],
     disabled=(idx_selected is None),
     )
 col3.button(
     "Elimina Allenamento",
     on_click=user.team.clear_training,
-    args=[df_trainings_info.loc[idx_selected, "ID Allenamento"]],
+    args=[id_selected],
     disabled=(idx_selected is None),
     )
