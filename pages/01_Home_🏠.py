@@ -23,20 +23,21 @@ with col2:
 # Trainings
 st.subheader("Allenamenti")
 
-# headers
-cols = st.columns((1, 2, 2, 2, 2))
-fields = ['', 'Data', 'Nome', 'Disciplina', 'Azione']
-for col, field_name in zip(cols, fields):
-    col.write(field_name)
+df_trainings_info = user.team.trainings_info_df()
+st.dataframe(df_trainings_info.drop(columns=["ID Allenamento"]))
 
-# corpus
-for i, t in enumerate(user.team.trainings):
-    col1, col2, col3, col4, col5 = st.columns((1, 2, 2, 2, 2))
-    
-    col1.write(i+1)
-    col2.write(str(t.date))
-    col3.write(t.name)
-    col4.write(t.discipline)
-    
-    button_phold = col5.empty()
-    button_phold.button("Vedi", key=i, on_click=user.team.select_training, args=[i])
+st.write("ID Allenamento")
+col1, buff, col2, col3 = st.columns(4)
+idx_selected = col1.selectbox("ID Allenamento", df_trainings_info.index, label_visibility="collapsed")
+col2.button(
+    "Visualizza Allenamento",
+    on_click=user.team.select_training,
+    args=[df_trainings_info.loc[idx_selected, "ID Allenamento"]],
+    disabled=(idx_selected is None),
+    )
+col3.button(
+    "Elimina Allenamento",
+    on_click=user.team.clear_training,
+    args=[df_trainings_info.loc[idx_selected, "ID Allenamento"]],
+    disabled=(idx_selected is None),
+    )

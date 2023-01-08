@@ -16,7 +16,7 @@ with col1:
     if st.button("Allenamenti in CSV", disabled=len(user.team.trainings)==0):
         st.download_button(
             label="Download CSV",
-            data=user.team.export_data(),
+            data=user.team.trainings_df().to_csv().encode('utf-8'),
             file_name=str(datetime.date.today()) + ' Allenamenti.csv',
         )
 with col2:

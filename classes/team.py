@@ -28,6 +28,12 @@ class Team:
         if init_training:
             self.training = Training()
 
+    def clear_training(self, i):
+        """
+        Remove from trainings the selected training.
+        """
+        self.trainings.pop(i)
+    
     def select_training(self, i):
         """
         Save current training if it is not empty.
@@ -36,7 +42,7 @@ class Team:
         if len(self.training.data) > 0:
             self.add_training(init_training=False)
         self.training = self.trainings.pop(i)
-    
+
     def display_team(self):
         """
         Create DataFrame to display all team members.
@@ -45,7 +51,6 @@ class Team:
         df.index += 1
         return df
 
-    # @st.cache
     def trainings_df(self):
         """
         Create DataFrame to contain all runs of each training.
@@ -67,8 +72,18 @@ class Team:
             columns=["id_training", "date", "name", "discipline", "id_run", "athlete", "time"]
         )
 
-    def export_data(self):
+    def trainings_info_df(self):
         """
-        Export all trainings to a csv.
+        Create DataFrame to contain all trainings with relative info ordered by date.
         """
-        return self.trainings_df().to_csv().encode('utf-8')
+        data = [[              
+                i,  
+                self.trainings[i].date,
+                self.trainings[i].name,
+                self.trainings[i].discipline,
+        ] for i in range(len(self.trainings))]
+
+        df = pd.DataFrame(data, columns=["ID Allenamento", "Data", "Nome", "Disciplina"])
+        df = df.sort_values("Data").reset_index(drop=True)
+        df.index += 1
+        return df
