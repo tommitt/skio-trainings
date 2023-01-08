@@ -14,17 +14,36 @@ else:
 
     # Athletes
     st.subheader("Atleti")
-    st.dataframe(user.team.display_team())
-    col1, col2 = st.columns(2)
+    df_athletes = user.team.display_team()
+    st.dataframe(df_athletes)
+    col1, col2 = st.columns([3, 1])
     with col1:
-        new_athlete = st.text_input("Nome", key="new_athlete_name", label_visibility="collapsed")
+        st.text_input("Nome", key="new_athlete_name", label_visibility="collapsed")
     with col2:
         st.button(
-            "Aggiungi atleta",
+            "Aggiungi Atleta",
             on_click=user.team.add_athlete,
-            args=[new_athlete],
-            disabled=st.session_state["new_athlete_name"]=='',
+            args=[st.session_state["new_athlete_name"]],
+            disabled=(st.session_state["new_athlete_name"]==''),
         )
+
+    st.write("Modifica Atleta")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    old_name = col1.selectbox("Atleta", df_athletes["Atleta"], label_visibility="collapsed")
+    new_name = col2.text_input(
+        "Nuovo Nome",
+        key="rename_athlete_name",
+        label_visibility="collapsed",
+        disabled=(old_name is None),
+        )
+    col3.button(
+        "Rinomina Atleta",
+        on_click=user.team.rename_athlete,
+        args=[old_name, new_name],
+        disabled=(new_name==''),
+        )
+
+    st.markdown("***")
 
     # Trainings
     st.subheader("Allenamenti")
@@ -33,7 +52,7 @@ else:
     st.dataframe(df_trainings_info.drop(columns=["ID Allenamento"]))
 
     st.write("ID Allenamento")
-    col1, buff, col2, col3 = st.columns(4)
+    col1, _, col2, col3 = st.columns(4)
     idx_selected = col1.selectbox("ID Allenamento", df_trainings_info.index, label_visibility="collapsed")
     id_selected = None if df_trainings_info.empty else df_trainings_info.loc[idx_selected, "ID Allenamento"]
     col2.button(

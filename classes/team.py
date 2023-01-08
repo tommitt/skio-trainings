@@ -19,6 +19,24 @@ class Team:
             self.athletes.append(name)
             st_session_state.init_add_fields()
 
+    def rename_athlete(self, old_name, new_name):
+        """
+        Rename one athlete of the team.
+        """
+        if new_name in self.athletes:
+            st.error("Nome già presente")
+        else:
+            idx = self.athletes.index(old_name)
+            self.athletes[idx] = new_name
+            for i in range(len(self.trainings)):
+                for j in range(len(self.trainings[i].data)):
+                    if self.trainings[i].data[j][0] == old_name:
+                        self.trainings[i].data[j][0] = new_name
+            for j in range(len(self.training.data)):
+                if self.training.data[j][0] == old_name:
+                    self.training.data[j][0] = new_name
+            st_session_state.init_add_fields()
+
     def add_training(self, init_training=True):
         """
         Store the current training in a list.

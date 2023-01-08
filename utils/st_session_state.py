@@ -6,3 +6,4 @@ def init_add_fields():
     """
     st.session_state["time"] = 0.0
     st.session_state["new_athlete_name"] = ''
+    st.session_state["rename_athlete_name"] = ''
