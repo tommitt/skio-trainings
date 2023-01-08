@@ -44,11 +44,10 @@ else:
     if loaded_state:
         loaded_state_binary = pickle.loads(loaded_state.read())
         if isinstance(loaded_state_binary, Team):
-            st.write("Stato Skio caricato!")
-            st.button("Importa", on_click=user.load_team, args=[loaded_state_binary])
+            if st.button("Importa Stato Skio", on_click=user.load_team, args=[loaded_state_binary]):
+                st.success("Stato Skio importato correttamente!")
         else:
-            st.error("Il file caricato non è accettato")
-
+            st.error("Il file caricato non è uno Stato Skio")
 
     # Delete everything
     st.subheader("Cancella dati")
