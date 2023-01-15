@@ -10,7 +10,7 @@ if 'user' not in st.session_state:
 else:
     user = st.session_state.user # type: User
     
-    st.header("Aggiunta Allenamento 🎿")
+    st.title("Aggiunta Allenamento 🎿")
 
     # training info
     discipline_options = ['SL', 'GS', 'SG', 'DH', 'CR', 'ND']

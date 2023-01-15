@@ -12,20 +12,47 @@ if 'user' not in st.session_state:
 else:
     user = st.session_state.user # type: User
     
-    st.header("Statistiche 📊")
+    st.title("Statistiche 📊")
 
     # Frame data
     df = user.team.trainings_df()
-
-    # Select athlete
-    athlete_selected = st.selectbox("Atleta", options=user.team.athletes)
 
     if df.empty:
         st.info("Nessun dato da visualizzare")
         
     else:
+        # Discipline split
+        st.header("Statistiche di Team")
+
+        # Number of trainings x discipline
+        st.subheader("Allenamenti per Disciplina")
+        df_disciplines = df.groupby(["discipline"])[["id_training"]].nunique()
+        
+        donut_data = df_disciplines.reset_index().rename(columns={
+            "id_training": "#Allenamenti",
+            "discipline": "Disciplina"
+            })
+        donut_data["%Allenamenti"] = (
+            donut_data["#Allenamenti"] / donut_data["#Allenamenti"].sum() * 100
+            ).round(0).astype(int).astype(str) + " %"
+
+        chart_base = alt.Chart(donut_data).encode(
+            theta=alt.Theta(field="#Allenamenti", type="quantitative", stack=True),
+            color=alt.Color(field="Disciplina", type="nominal"),
+            )
+        
+        st.altair_chart((
+            chart_base.mark_arc(outerRadius=120, innerRadius=40) +
+            chart_base.mark_text(radius=150, size=15).encode(text="%Allenamenti")
+        ), theme=None)
+        
+        # Select athlete
+        st.markdown("***")
+        st.header("Statistiche per Atleta")
+        athlete_selected = st.selectbox("Atleta", options=user.team.athletes)
+
         # DNF %
-        st.header("Percentuale di DNF")
+        st.subheader("Percentuale di DNF")
 
         df["n_dnf"] = df["time"] == "DNF"
         df_athletes = df.groupby(["athlete", "discipline"]).agg({

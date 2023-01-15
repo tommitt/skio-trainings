@@ -10,10 +10,10 @@ if 'user' not in st.session_state:
 else:
     user = st.session_state.user # type: User    
     
-    st.header("Il tuo Team ⛷️")
+    st.title("Il tuo Team ⛷️")
 
     # Athletes
-    st.subheader("Atleti")
+    st.header("Atleti")
     df_athletes = user.team.display_team()
     st.dataframe(df_athletes)
     col1, col2 = st.columns([3, 1])
@@ -46,7 +46,7 @@ else:
     st.markdown("***")
 
     # Trainings
-    st.subheader("Allenamenti")
+    st.header("Allenamenti")
 
     df_trainings_info = user.team.trainings_info_df()
     st.dataframe(df_trainings_info.drop(columns=["ID Allenamento"]))

@@ -13,10 +13,10 @@ if 'user' not in st.session_state:
 else:
     user = st.session_state.user # type: User
     
-    st.header("Importa/Esporta Dati 💻")
+    st.title("Importa/Esporta Dati 💻")
 
     # Export data
-    st.subheader("Esporta dati")
+    st.header("Esporta dati")
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Allenamenti in CSV", disabled=len(user.team.trainings)==0):
@@ -38,7 +38,7 @@ else:
         ")
 
     # Load data
-    st.subheader("Importa dati")
+    st.header("Importa dati")
 
     loaded_state = st.file_uploader("Carica Stato Skio")
     if loaded_state:
@@ -49,6 +49,8 @@ else:
         else:
             st.error("Il file caricato non è uno Stato Skio")
 
+    st.markdown("***")
+    
     # Delete everything
-    st.subheader("Cancella dati")
+    st.header("Cancella dati")
     st.button("Elimina tutti i dati", on_click=user.clear_team, disabled=len(user.team.athletes)==0)
