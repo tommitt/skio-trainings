@@ -37,14 +37,15 @@ else:
         st.altair_chart(dnf_bar_chart(df, athlete_selected), theme=None)
 
         # Adaptation to the track
-        st.subheader("Giro al Miglior Tempo + IDA")
+        st.subheader("Giro al Miglior Tempo")
         chart, ida = best_lap_bar_chart(df, athlete_selected)
         st.altair_chart(chart, theme=None)
 
         # Index of Adaptation (IDA)
+        st.subheader("IDA")
         st.dataframe(ida)
         st.caption(
-            "IDA: Indice Di Adattamento (a 60 s)\
+            "IDA: Indice Di Adattamento (normalizzato a 60 s)\
             \nSappiamo quanto sia importante nel nostro sport il primo giro, quello che poi conta in gara.\
             \nPer questo abbiamo elaborato questo indice che serve per valutare il primo giro dell'atleta.\
             \nMostra il tempo ipotetico che ci metterebbe in meno nel primo giro se l'atleta lo facesse al suo massimo potenziale.\

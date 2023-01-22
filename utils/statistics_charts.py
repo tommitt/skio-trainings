@@ -67,7 +67,7 @@ def dnf_bar_chart(df, athlete):
             x='Atleta/Team',
             y=alt.Y('% DNF', scale=alt.Scale(domain=(0, 100))),
             color='Atleta/Team',
-            column='Disciplina'
+            column=alt.Column(field='Disciplina', header=alt.Header(titleColor="#c9c9c9")),
             )
 
 def best_lap_bar_chart(df, athlete):
@@ -79,6 +79,8 @@ def best_lap_bar_chart(df, athlete):
     athlete and the team average.
     """
     df["lap"] = df.groupby(["id_training", "athlete"]).transform("cumcount") + 1
+    df.loc[df["lap"] >= 5, "lap"] = "5+"
+    df["lap"] = df["lap"].astype(str)
 
     df = df.loc[df["time"] != "DNF"].copy() # drop DNFs
     df["time"] = df["time"].astype(float)
@@ -102,9 +104,9 @@ def best_lap_bar_chart(df, athlete):
         size=50,
         ).encode(
             x='Atleta/Team',
-            y='# Allenamenti',
+            y=alt.Y('# Allenamenti', axis=alt.Axis(tickMinStep=1)),
             color='Atleta/Team',
-            column='Giro'
+            column=alt.Column(field='Giro', header=alt.Header(titleColor="#c9c9c9")),
             )
 
     # IDA = (first run - best run) / first run * 60s
