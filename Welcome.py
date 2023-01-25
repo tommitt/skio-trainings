@@ -1,5 +1,6 @@
 import streamlit as st
 from classes.user import User
+from utils.settings import settings
 
 st.set_page_config(page_title="Skio - Archivia i tuoi allenamenti!", page_icon="❄️")
 
@@ -14,4 +15,4 @@ st.markdown(
     \n\nNon ti rimane altro che iniziare a usare Skio!"
 )
 
-st.caption("versione: alpha")
+st.caption("versione: " + settings.version)

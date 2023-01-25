@@ -1,6 +1,7 @@
 import streamlit as st
 from classes.user import User
 from screens.error_screens import screen_notLoggedIn
+from utils.settings import settings
 
 st.set_page_config(page_title="Skio - Aggiunta Allenamento", page_icon="❄️")
 
@@ -13,13 +14,11 @@ else:
     st.title("Aggiunta Allenamento 🎿")
 
     # training info
-    discipline_options = ['SL', 'GS', 'SG', 'DH', 'CR', 'ND']
-
     st.subheader("Info Allenamento")
     user.team.training.name = st.text_input("Nome", value=user.team.training.name)
     user.team.training.date = st.date_input("Data", value=user.team.training.date)
-    discipline_idx = discipline_options.index(user.team.training.discipline)
-    user.team.training.discipline = st.selectbox("Disciplina", discipline_options, index=discipline_idx)
+    discipline_idx = settings.disciplines.index(user.team.training.discipline)
+    user.team.training.discipline = st.selectbox("Disciplina", settings.disciplines, index=discipline_idx)
 
     # athletes times
     st.subheader("Tempi Atleti")
