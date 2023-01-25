@@ -1,6 +1,15 @@
 import numpy as np
 import pandas as pd
 import altair as alt
+from utils.settings import settings
+
+def helper_discipline_sorter(df, discipline_col, other_cols):
+    """
+    Helper function to sort dataframes following discipline order specified in settings.
+    """
+    df["sorter"] = df[discipline_col].astype("category").cat.set_categories(settings.disciplines)
+    df = df.set_index(["sorter"] + other_cols).sort_index().reset_index()
+    return df.drop(columns=["sorter"])
 
 def discipline_donut_chart(df):
     """
@@ -13,6 +22,7 @@ def discipline_donut_chart(df):
         "id_training": "#Allenamenti",
         "discipline": "Disciplina"
         })
+    donut_data = helper_discipline_sorter(donut_data, "Disciplina", [])
     
     donut_data["%Allenamenti"] = (
         donut_data["#Allenamenti"] / donut_data["#Allenamenti"].sum() * 100
@@ -106,27 +116,14 @@ def best_lap_bar_chart(df, athlete):
             column=alt.Column(field='Giro', header=alt.Header(titleColor="#c9c9c9")),
             )
 
-def helper_ida_area(df, athlete, dates):
+def ida_line_chart(df, athlete):
     """
-    Helper function for IDA area chart to extract athlete data, stack dates,
-    assign the correct labels and return the area chart.
-    """
-    area_data = df.loc[df["athlete"] == athlete]
-    area_data = area_data.set_index("discipline")[dates].stack().reset_index()
-    area_data.columns = ["Disciplina", "Data", "IDA"]
-    return alt.Chart(area_data).mark_area().encode(
-        x="Data",
-        y="IDA",
-        color="Disciplina",
-    )
-
-def ida_area_chart(df, athlete):
-    """
-    Compute IDA and create a stacked area chart with IDA over time divided per discipline.
+    Compute IDA and create a line chart with IDA over time divided per discipline.
     The IDA (Index of Adaptation) is computed as IDA = (first run - best run) / first run * 60s,
     and aggregated in two different ways: cumulative (mean of the past trainings at any given date)
     and punctual (mean of trainings exactly at the given date).
-    Both charts for the selected athlete are returned.
+    Both charts for the selected athlete are returned, along with a table displaying the
+    final cumulative IDAs for the selected athlete and the team average.
     """
     df = df.loc[df["time"] != "DNF"].copy() # drop DNFs
     df["time"] = df["time"].astype(float)
@@ -142,18 +139,50 @@ def ida_area_chart(df, athlete):
         (df_dates["first_run_time"] - df_dates["best_run_time"])
         / df_dates["first_run_time"] * 60
         )
-    
-    dates = sorted(df["date"].unique())
-    for date in dates:
-        df_dates[date] = df_dates["IDA"]
-        df_dates.loc[~(df_dates["date"] <= date), date] = np.nan
-    
-    df_cum = df_dates.groupby(
-        ["athlete", "discipline"])[dates].mean().reset_index()
-    df_point = df_dates.sort_values("date").groupby(
-        ["athlete", "discipline"])[dates].last().reset_index()
 
+    df_dates = df_dates.groupby(["discipline", "date", "athlete"])[["IDA"]].mean()
+    
+    # compute comulative and punctual IDAs over time
+    dates = sorted(df["date"].unique())
+    dates_midx = pd.MultiIndex.from_product([["cumulative", "punctual"], dates])
+    df_ida = pd.DataFrame(index=df_dates.index, columns=dates_midx)
+    for date in dates:
+        df_ida[("cumulative", date)] = df_dates["IDA"]
+        df_ida[("punctual", date)] = df_dates["IDA"]
+        df_ida.loc[df_ida.index.get_level_values("date") > date, ("cumulative", date)] = np.nan
+        df_ida.loc[df_ida.index.get_level_values("date") != date, ("punctual", date)] = np.nan
+    
+    df_ida = df_ida.groupby(["athlete", "discipline"]).mean().stack().reset_index()
+    df_ida.columns = ["Atleta", "Disciplina", "Data", "cumulative", "punctual"]
+    df_ida = helper_discipline_sorter(df_ida, "Disciplina", ["Data", "Atleta"])
+
+    # compute final cumulative IDA for athlete and team average (for each discipline and in total)
+    discipline_ida = df_ida.groupby(["Disciplina", "Atleta"])["punctual"].mean().reset_index()
+    discipline_ida = helper_discipline_sorter(discipline_ida, "Disciplina", ["Atleta"])
+    total_ida = df_ida.groupby(["Atleta"])["punctual"].mean().reset_index()
+    total_ida["Disciplina"] = "Totale"
+
+    final_ida = pd.concat([discipline_ida, total_ida])
+
+    ida_table = pd.concat([
+        final_ida[final_ida["Atleta"] == athlete].drop(columns=["Atleta"]).set_index("Disciplina"),
+        final_ida.groupby("Disciplina").mean(numeric_only=True),
+    ], axis=1)
+    ida_table.columns = [athlete, "Media di Team"]
+
+    # extract selected athlete
+    line_data = df_ida[df_ida["Atleta"] == athlete]
+    
     return (
-        helper_ida_area(df_cum, athlete, dates),
-        helper_ida_area(df_point, athlete, dates),
-        )
+        alt.Chart(
+            line_data.dropna(subset=["cumulative"])
+            ).mark_line(point=alt.OverlayMarkDef()).encode(
+                x="Data", y=alt.Y("cumulative", title='IDA'), color="Disciplina"
+        ),
+        alt.Chart(
+            line_data.dropna(subset=["punctual"])
+            ).mark_line(point=alt.OverlayMarkDef()).encode(
+                x="Data", y=alt.Y("punctual", title='IDA'), color="Disciplina"
+        ),
+        (ida_table.round(2).astype(str) + ' s').T,
+    )

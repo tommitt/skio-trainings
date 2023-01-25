@@ -42,12 +42,13 @@ else:
 
         # Index of Adaptation (IDA)
         st.subheader("IDA (Indice Di Adattamento)")
-        cum_ida, point_ida = ida_area_chart(df, athlete_selected)
+        cumulative_ida, punctual_ida, ida_table = ida_line_chart(df, athlete_selected)
         tab1, tab2 = st.tabs(["Cumulativo", "Puntuale"])
         with tab1:
-            st.altair_chart(cum_ida, theme="streamlit")
+            st.altair_chart(cumulative_ida, theme="streamlit")
         with tab2:
-            st.altair_chart(point_ida, theme="streamlit")
+            st.altair_chart(punctual_ida, theme="streamlit")
+        st.dataframe(ida_table)
         st.caption(
             "IDA: Indice Di Adattamento (normalizzato a 60 s)\
             \nSappiamo quanto sia importante nel nostro sport il primo giro, quello che poi conta in gara.\
