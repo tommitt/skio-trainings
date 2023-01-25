@@ -1,7 +1,7 @@
 import streamlit as st
 from classes.user import User
 from screens.error_screens import screen_notLoggedIn
-from utils.statistics_charts import discipline_donut_chart, dnf_bar_chart, best_lap_bar_chart
+from utils.statistics_charts import *
 
 st.set_page_config(page_title="Skio - Statistiche", page_icon="❄️")
 
@@ -25,7 +25,7 @@ else:
 
         # Number of trainings x discipline
         st.subheader("Allenamenti per Disciplina")
-        st.altair_chart(discipline_donut_chart(df), theme=None)
+        st.altair_chart(discipline_donut_chart(df), theme="streamlit")
         
         # Athlete statistics
         st.markdown("***")
@@ -38,12 +38,16 @@ else:
 
         # Adaptation to the track
         st.subheader("Giro al Miglior Tempo")
-        chart, ida = best_lap_bar_chart(df, athlete_selected)
-        st.altair_chart(chart, theme=None)
+        st.altair_chart(best_lap_bar_chart(df, athlete_selected), theme=None)
 
         # Index of Adaptation (IDA)
-        st.subheader("IDA")
-        st.dataframe(ida)
+        st.subheader("IDA (Indice Di Adattamento)")
+        cum_ida, point_ida = ida_area_chart(df, athlete_selected)
+        tab1, tab2 = st.tabs(["Cumulativo", "Puntuale"])
+        with tab1:
+            st.altair_chart(cum_ida, theme="streamlit")
+        with tab2:
+            st.altair_chart(point_ida, theme="streamlit")
         st.caption(
             "IDA: Indice Di Adattamento (normalizzato a 60 s)\
             \nSappiamo quanto sia importante nel nostro sport il primo giro, quello che poi conta in gara.\

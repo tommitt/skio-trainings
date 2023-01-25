@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import altair as alt
 
@@ -24,7 +25,7 @@ def discipline_donut_chart(df):
     
     return (
         chart_base.mark_arc(outerRadius=120, innerRadius=40)
-        + chart_base.mark_text(radius=150, size=15).encode(text="%Allenamenti")
+        + chart_base.mark_text(radius=140, size=15).encode(text="%Allenamenti")
     )
 
 def teamAvg_athlete_bar_data(df, athlete, groupby_col, target_col):
@@ -72,10 +73,8 @@ def dnf_bar_chart(df, athlete):
 
 def best_lap_bar_chart(df, athlete):
     """
-    Create a bar chart displaying at which lap an athlete has made the best run and compute IDA.
+    Create a bar chart displaying at which lap an athlete has made the best run.
     The chart shows the number of trainings for each lap number splitted between the selected
-    athlete and the team average.
-    The IDA (Index of Adaptation) is returned in a dataframe splitted between the selected
     athlete and the team average.
     """
     df["lap"] = df.groupby(["id_training", "athlete"]).transform("cumcount") + 1
@@ -85,20 +84,18 @@ def best_lap_bar_chart(df, athlete):
     df = df.loc[df["time"] != "DNF"].copy() # drop DNFs
     df["time"] = df["time"].astype(float)
 
-    df_ida = df.groupby(["id_training", "athlete"]).agg(
-        {"time": ["first", "min", "idxmin"]}
-    )
-    df_ida.columns = ["first_run_time", "best_run_time", "best_run_idx"]
+    df_grouped = df.groupby(["id_training", "athlete"]).agg({"time": ["min", "idxmin"]})
+    df_grouped.columns = ["best_run_time", "best_run_idx"]
 
-    df_ida["best_run_lap"] = df.loc[df_ida["best_run_idx"], "lap"].values
+    df_grouped["best_run_lap"] = df.loc[df_grouped["best_run_idx"], "lap"].values
 
-    best_run_laps = df_ida.groupby(["athlete", "best_run_lap"])["best_run_time"].count().reset_index()
+    best_run_laps = df_grouped.groupby(["athlete", "best_run_lap"])["best_run_time"].count().reset_index()
     best_run_laps.columns = ["athlete", "best_run_lap", "# Allenamenti"]
 
     bar_data = teamAvg_athlete_bar_data(best_run_laps, athlete, "best_run_lap", "# Allenamenti")
     bar_data = bar_data.rename(columns={"best_run_lap": "Giro"})
 
-    chart = alt.Chart(bar_data).mark_bar(
+    return alt.Chart(bar_data).mark_bar(
         cornerRadiusTopLeft=5,
         cornerRadiusTopRight=5,
         size=50,
@@ -109,13 +106,54 @@ def best_lap_bar_chart(df, athlete):
             column=alt.Column(field='Giro', header=alt.Header(titleColor="#c9c9c9")),
             )
 
+def helper_ida_area(df, athlete, dates):
+    """
+    Helper function for IDA area chart to extract athlete data, stack dates,
+    assign the correct labels and return the area chart.
+    """
+    area_data = df.loc[df["athlete"] == athlete]
+    area_data = area_data.set_index("discipline")[dates].stack().reset_index()
+    area_data.columns = ["Disciplina", "Data", "IDA"]
+    return alt.Chart(area_data).mark_area().encode(
+        x="Data",
+        y="IDA",
+        color="Disciplina",
+    )
+
+def ida_area_chart(df, athlete):
+    """
+    Compute IDA and create a stacked area chart with IDA over time divided per discipline.
+    The IDA (Index of Adaptation) is computed as IDA = (first run - best run) / first run * 60s,
+    and aggregated in two different ways: cumulative (mean of the past trainings at any given date)
+    and punctual (mean of trainings exactly at the given date).
+    Both charts for the selected athlete are returned.
+    """
+    df = df.loc[df["time"] != "DNF"].copy() # drop DNFs
+    df["time"] = df["time"].astype(float)
+
+    df_dates = df.groupby(
+        ["id_training", "discipline", "date", "athlete"]
+        ).agg({"time": ["first", "min"]})
+    df_dates.columns = ["first_run_time", "best_run_time"]
+    df_dates = df_dates.reset_index()
+
     # IDA = (first run - best run) / first run * 60s
-    df_ida["IDA"] = (df_ida["first_run_time"] - df_ida["best_run_time"]) / df_ida["first_run_time"] * 60
-    ida_athletes = df_ida.groupby("athlete")["IDA"].mean()
+    df_dates["IDA"] = (
+        (df_dates["first_run_time"] - df_dates["best_run_time"])
+        / df_dates["first_run_time"] * 60
+        )
+    
+    dates = sorted(df["date"].unique())
+    for date in dates:
+        df_dates[date] = df_dates["IDA"]
+        df_dates.loc[~(df_dates["date"] <= date), date] = np.nan
+    
+    df_cum = df_dates.groupby(
+        ["athlete", "discipline"])[dates].mean().reset_index()
+    df_point = df_dates.sort_values("date").groupby(
+        ["athlete", "discipline"])[dates].last().reset_index()
 
-    ida = pd.DataFrame({
-        "Atleta/Team": ["Atleta", "Media di Team"],
-        "IDA": [str(ida_athletes[athlete].round(2)) + " s", str(ida_athletes.mean().round(2)) + " s"]
-        })
-
-    return chart, ida
+    return (
+        helper_ida_area(df_cum, athlete, dates),
+        helper_ida_area(df_point, athlete, dates),
+        )
