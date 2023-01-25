@@ -169,6 +169,7 @@ def ida_line_chart(df, athlete):
         final_ida.groupby("Disciplina").mean(numeric_only=True),
     ], axis=1)
     ida_table.columns = [athlete, "Media di Team"]
+    ida_table = ida_table.dropna(axis=0, how='any')
 
     # extract selected athlete
     line_data = df_ida[df_ida["Atleta"] == athlete]
