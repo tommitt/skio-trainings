@@ -145,12 +145,22 @@ def ida_line_chart(df, athlete):
     # compute comulative and punctual IDAs over time
     dates = sorted(df["date"].unique())
     dates_midx = pd.MultiIndex.from_product([["cumulative", "punctual"], dates])
-    df_ida = pd.DataFrame(index=df_dates.index, columns=dates_midx)
+    df_ida = pd.DataFrame(index=df_dates.index, columns=dates_midx, dtype=float)
     for date in dates:
+        
+        # comulative IDA
         df_ida[("cumulative", date)] = df_dates["IDA"]
-        df_ida[("punctual", date)] = df_dates["IDA"]
-        df_ida.loc[df_ida.index.get_level_values("date") > date, ("cumulative", date)] = np.nan
-        df_ida.loc[df_ida.index.get_level_values("date") != date, ("punctual", date)] = np.nan
+        date_disciplines = df_ida.loc[
+            df_ida.index.get_level_values("date") == date
+            ].index.get_level_values("discipline").unique().to_list()
+        mask_disciplines = ~(df_ida.index.get_level_values("discipline").isin(date_disciplines))
+        df_ida.loc[
+            (df_ida.index.get_level_values("date") > date) | mask_disciplines, ("cumulative", date)
+            ] = np.nan
+        
+        # punctual IDA
+        mask_date = (df_ida.index.get_level_values("date") == date)
+        df_ida.loc[mask_date, ("punctual", date)] = df_dates.loc[mask_date, "IDA"]
     
     df_ida = df_ida.groupby(["athlete", "discipline"]).mean().stack().reset_index()
     df_ida.columns = ["Atleta", "Disciplina", "Data", "cumulative", "punctual"]
