@@ -14,7 +14,7 @@ else:
     st.title("Statistiche 📊")
 
     # Frame data
-    df = user.team.trainings_df()
+    df = user.team.db.copy()
 
     if df.empty:
         st.info("Nessun dato da visualizzare")

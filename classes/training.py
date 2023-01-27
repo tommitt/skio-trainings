@@ -15,8 +15,8 @@ class Training:
         Store athlete run and re-initialize session state.
         """
         self.data.append([
-            st.session_state["athlete"],
-            "DNF" if dnf else round(st.session_state["time"], 2),
+            st.session_state["running_athlete"],
+            1000. if dnf else round(st.session_state["running_time"], 2),
         ])
         st_session_state.init_add_fields()
     
@@ -26,6 +26,15 @@ class Training:
         """
         self.data = self.data[:-1]
         st_session_state.init_add_fields()
+    
+    def load_from_db(self, df):
+        """
+        Load Training object from trainings df.
+        """
+        self.name = df["name"].unique().item()
+        self.date = df["date"].unique().item()
+        self.discipline = df["discipline"].unique().item()
+        self.data = df[["athlete", "time"]].values.tolist()
 
     def display_runs(self):
         """
@@ -33,9 +42,6 @@ class Training:
         Order athletes by best lap and highlight the best lap.
         """
         df = pd.DataFrame(data=self.data, columns=["Atleta", "Tempo"])
-        
-        # treatment of DNF: transform to a high value
-        df["Tempo"] = df["Tempo"].replace("DNF", 1000)
 
         # unstack laps on columns
         df["Giro"] = df.groupby("Atleta").transform("cumcount")

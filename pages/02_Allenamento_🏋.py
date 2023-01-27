@@ -23,22 +23,22 @@ else:
     # athletes times
     st.subheader("Tempi Atleti")
 
-    st.selectbox("Atleta", options=user.team.athletes, key='athlete')
-    st.number_input("Tempo", key='time', min_value=0.0, max_value=180.0)
+    st.selectbox("Atleta", options=user.team.athletes, key='running_athlete')
+    st.number_input("Tempo", key='running_time', min_value=0.0, max_value=180.0)
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         st.button(
             "Aggiungi tempo",
             on_click=user.team.training.add_run,
-            disabled=(st.session_state["time"]==0),
+            disabled=(st.session_state["running_time"]==0),
         )
     with col2:
         st.button(
             "Aggiungi DNF",
             on_click=user.team.training.add_run,
             args=[True],
-            disabled=(st.session_state["athlete"] is None),
+            disabled=(st.session_state["running_athlete"] is None),
         )
     with col3:
         st.button(

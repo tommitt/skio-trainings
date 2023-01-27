@@ -59,7 +59,7 @@ def dnf_bar_chart(df, athlete):
     Create a bar chart displaying the % of DNFs splitted per discipline of the selected athlete
     and the team average.
     """
-    df["n_dnf"] = (df["time"] == "DNF")
+    df["n_dnf"] = (df["time"] == 1000)
     df_athletes = df.groupby(["athlete", "discipline"]).agg({
         "id_training": "nunique",
         "id_run": "nunique",
@@ -91,7 +91,7 @@ def best_lap_bar_chart(df, athlete):
     df.loc[df["lap"] >= 5, "lap"] = "5+"
     df["lap"] = df["lap"].astype(str)
 
-    df = df.loc[df["time"] != "DNF"].copy() # drop DNFs
+    df = df.loc[df["time"] < 1000].copy() # drop DNFs
     df["time"] = df["time"].astype(float)
 
     df_grouped = df.groupby(["id_training", "athlete"]).agg({"time": ["min", "idxmin"]})
@@ -125,7 +125,7 @@ def ida_line_chart(df, athlete):
     Both charts for the selected athlete are returned, along with a table displaying the
     final cumulative IDAs for the selected athlete and the team average.
     """
-    df = df.loc[df["time"] != "DNF"].copy() # drop DNFs
+    df = df.loc[df["time"] < 1000].copy() # drop DNFs
     df["time"] = df["time"].astype(float)
 
     df_dates = df.groupby(
