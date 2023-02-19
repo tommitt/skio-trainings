@@ -19,10 +19,10 @@ else:
     st.header("Esporta dati")
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Allenamenti in CSV", disabled=user.team.db.empty):
+        if st.button("Allenamenti in CSV", disabled=len(user.team.trainings)==0):
             st.download_button(
                 label="Download CSV",
-                data=user.team.db.to_csv().encode('utf-8'),
+                data=user.team.trainings_df().to_csv().encode('utf-8'),
                 file_name=str(datetime.date.today()) + ' Allenamenti.csv',
             )
     with col2:

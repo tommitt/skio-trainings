@@ -26,15 +26,6 @@ class Training:
         """
         self.data = self.data[:-1]
         st_session_state.init_add_fields()
-    
-    def load_from_db(self, df):
-        """
-        Load Training object from trainings df.
-        """
-        self.name = df["name"].unique().item()
-        self.date = df["date"].unique().item()
-        self.discipline = df["discipline"].unique().item()
-        self.data = df[["athlete", "time"]].values.tolist()
 
     def display_runs(self):
         """

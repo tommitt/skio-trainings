@@ -9,11 +9,6 @@ class Settings:
     @property
     def version(self):
         """App current version"""
-        return "alpha0.2"
-    
-    @property
-    def deprecated_versions(self):
-        """"Deprecated versions still accepted"""
-        return ["alpha0.1"]
+        return "alpha0.3"
 
 settings = Settings()

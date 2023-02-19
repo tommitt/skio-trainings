@@ -2,24 +2,12 @@ import streamlit as st
 import pandas as pd
 from classes.training import Training
 from utils import st_session_state
-from utils.settings import settings
 
 class Team:
     def __init__(self):
         self.athletes = []
+        self.trainings = []
         self.training = Training()
-        self.db = pd.DataFrame(
-            columns=[
-                "id_training",
-                "date",
-                "name",
-                "discipline",
-                "id_run",
-                "athlete",
-                "time",
-                ]
-            )
-        self.app_version = settings.version
 
     def add_athlete(self, name):
         """
@@ -40,41 +28,38 @@ class Team:
         else:
             idx = self.athletes.index(old_name)
             self.athletes[idx] = new_name
-            self.db["athlete"].rename({old_name: new_name}, inplace=True)
+            for i in range(len(self.trainings)):
+                for j in range(len(self.trainings[i].data)):
+                    if self.trainings[i].data[j][0] == old_name:
+                        self.trainings[i].data[j][0] = new_name
+            for j in range(len(self.training.data)):
+                if self.training.data[j][0] == old_name:
+                    self.training.data[j][0] = new_name
             st_session_state.init_add_fields()
 
     def add_training(self, init_training=True):
         """
-        Store the current training to trainings db.
+        Store the current training in a list.
         """
-        df = pd.DataFrame(data=self.training.data, columns=["athlete", "time"])
-        df["id_training"] = 0 if self.db.empty else self.db["id_training"].max() + 1
-        df["date"] = self.training.date
-        df["name"] = self.training.name
-        df["discipline"] = self.training.discipline
-        df["id_run"] = df.index
-        
-        self.db = pd.concat([self.db, df], ignore_index=True)
+        self.trainings.append(self.training)
         st_session_state.init_add_fields()
-
         if init_training:
             self.training = Training()
 
-    def clear_training(self, id):
+    def clear_training(self, i):
         """
-        Remove the selected training from trainings db.
+        Remove from trainings the selected training.
         """
-        self.db = self.db.loc[~(self.db["id_training"] == id)].reset_index(drop=True)
-
-    def select_training(self, id):
+        self.trainings.pop(i)
+    
+    def select_training(self, i):
         """
-        Make the selected training the new current one and
-        save current training if it is not empty.
+        Save current training if it is not empty.
+        Make the selected training the new current one.
         """
         if len(self.training.data) > 0:
             self.add_training(init_training=False)
-        self.training.load_from_db(self.db.loc[self.db["id_training"] == id])
-        self.db = self.db.loc[self.db["id_training"] != id].reset_index(drop=True)
+        self.training = self.trainings.pop(i)
 
     def display_team(self):
         """
@@ -84,14 +69,39 @@ class Team:
         df.index += 1
         return df
 
+    def trainings_df(self):
+        """
+        Create DataFrame to contain all runs of each training.
+        """        
+        data = []
+        for i in range(len(self.trainings)):
+            data += [[
+                i,
+                self.trainings[i].date,
+                self.trainings[i].name,
+                self.trainings[i].discipline,
+                j,
+                self.trainings[i].data[j][0],
+                self.trainings[i].data[j][1],
+            ] for j in range(len(self.trainings[i].data))]
+
+        return pd.DataFrame(
+            data,
+            columns=["id_training", "date", "name", "discipline", "id_run", "athlete", "time"]
+        )
+
     def trainings_info_df(self):
         """
         Create DataFrame to contain all trainings with relative info ordered by date.
         """
-        df = self.db.groupby(["id_training", "date", "name", "discipline"])[
-            ["athlete", "id_run"]].nunique().reset_index()
+        data = [[              
+                i,  
+                self.trainings[i].date,
+                self.trainings[i].name,
+                self.trainings[i].discipline,
+        ] for i in range(len(self.trainings))]
 
-        df.columns = ["id_training", "Data", "Nome", "Disciplina", "# Atleti", "# Runs"]
+        df = pd.DataFrame(data, columns=["id_training", "Data", "Nome", "Disciplina"]) # TODO: add #Athletes + #Runs
         df = df.sort_values("Data").reset_index(drop=True)
         df.index += 1
         return df

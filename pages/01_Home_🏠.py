@@ -30,7 +30,7 @@ else:
     st.write("Modifica Atleta")
     col1, col2, col3 = st.columns([1, 2, 1])
     old_name = col1.selectbox("Atleta", df_athletes["Atleta"], label_visibility="collapsed")
-    col2.text_input(
+    new_name = col2.text_input(
         "Nuovo Nome",
         key="rename_athlete_name",
         label_visibility="collapsed",
@@ -39,8 +39,8 @@ else:
     col3.button(
         "Rinomina Atleta",
         on_click=user.team.rename_athlete,
-        args=[old_name, st.session_state["rename_athlete_name"]],
-        disabled=(st.session_state["rename_athlete_name"]==''),
+        args=[old_name, new_name],
+        disabled=(new_name==''),
         )
 
     st.markdown("***")
