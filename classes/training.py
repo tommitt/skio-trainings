@@ -1,25 +1,28 @@
+import streamlit as st
 import datetime
 import pandas as pd
-import streamlit as st
 from utils import st_session_state
 
+
 class Training:
-    def __init__(self):
-        self.name = ''
-        self.date = datetime.date.today()
-        self.discipline = 'ND'
+    def __init__(self, name="", date=datetime.date.today(), discipline="ND"):
+        self.name = name
+        self.date = date
+        self.discipline = discipline
         self.data = []
 
     def add_run(self, dnf=False):
         """
         Store athlete run and re-initialize session state.
         """
-        self.data.append([
-            st.session_state["running_athlete"],
-            1000. if dnf else round(st.session_state["running_time"], 2),
-        ])
+        self.data.append(
+            [
+                st.session_state["running_athlete"],
+                1000.0 if dnf else round(st.session_state["running_time"], 2),
+            ]
+        )
         st_session_state.init_add_fields()
-    
+
     def clear_last_run(self):
         """
         Clear last inserted run from data and re-initialize session state.
@@ -44,10 +47,8 @@ class Training:
         df["Best"] = df.min(axis=1)
         df = df.sort_values("Best").reset_index().drop(columns=["Best"])
         df.index = df.index + 1
-        
+
         # return best lap highlighted
-        return df.style.highlight_min(
-            subset=lap_cols,
-            axis=1,
-            color="grey"
-            ).format(precision=2, na_rep=' ')
+        return df.style.highlight_min(subset=lap_cols, axis=1, color="grey").format(
+            precision=2, na_rep=" "
+        )

@@ -1,14 +1,18 @@
 class Settings:
-    # def __init__(self):
-        
     @property
     def disciplines(self):
         """Available options for disciplines"""
-        return ['SL', 'GS', 'SG', 'DH', 'CR', 'ND']
-    
+        return ["SL", "GS", "SG", "DH", "CR", "ND"]
+
     @property
     def version(self):
         """App current version"""
-        return "alpha0.3"
+        return "beta0.1"
+
+    @property
+    def contact_email(self):
+        """Email address displayed as contact"""
+        return "tommytassi@hotmail.it"
+
 
 settings = Settings()

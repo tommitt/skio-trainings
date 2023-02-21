@@ -1,18 +1,35 @@
 import streamlit as st
-from classes.user import User
+import json
+import time
+from google.cloud import firestore
+from screens.login_screen import login_screen
 from utils.settings import settings
 
 st.set_page_config(page_title="Skio - Archivia i tuoi allenamenti!", page_icon="❄️")
 
-if 'user' not in st.session_state:
-    st.session_state.user = User()
+if "user" not in st.session_state:
+    # connect to Firestore db
+    try:
+        db = firestore.Client.from_service_account_info(
+            json.loads(st.secrets["firebase"]["firestore"])
+        )
+    except Exception as e:
+        raise Exception("Connection to remote db failed:", e)
 
-st.title("Welcome to Skio! ❄️")
-st.markdown(
-    "In questa versione alpha di Skio puoi inserire i membri del tuo team e raccogliere in un unico posto i tempi dei tuoi allenamenti.\
-    \n\nIn versioni future verranno aggiunte analisi automatiche delle presentazione come Indice di Performance, Indice di Adattamento e molti altri indicatori.\
-    Per questa stagione, se raccoglierai i dati con Skio, inviaci lo Stato Skio a fine stagione per [mail](mailto:tommytassi@hotmail.it) e ti faremo avere un report.\
-    \n\nNon ti rimane altro che iniziare a usare Skio!"
-)
+    # login user
+    login_return = login_screen(db)
+    if login_return == 0:
+        time.sleep(1)
+        st.experimental_rerun()
+else:
+    st.title("Welcome to Skio! ❄️")
+    st.markdown(
+        f"Siamo felici di darti il benvenuto nella versione beta di Skio!\
+        \n\nSkio è un'app che ti permette di generare analisi automatiche delle prestazione del tuo team.\
+        \nAggiungi gli atleti al tuo team e raccogli i dati dei tuoi allenamenti - \
+        dopodiché, esplora l'Indice Di Adattamento, la Percentuale di DNF e tanto altro nella sezione Statistiche.\
+        \n\nSkio è in continuo aggiornamento, se hai consigli su come potremmo migliorarci, non esitare a [contattarci](mailto:{settings.contact_email}).\
+        \n\nAdesso non ti rimane altro che iniziare a usare Skio!"
+    )
 
-st.caption("versione: " + settings.version)
+    st.caption("versione: " + settings.version)

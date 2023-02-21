@@ -1,13 +1,38 @@
 import streamlit as st
+import datetime
 import pandas as pd
 from classes.training import Training
 from utils import st_session_state
+
 
 class Team:
     def __init__(self):
         self.athletes = []
         self.trainings = []
         self.training = Training()
+
+    def from_query(self, db, owner):
+        """
+        Load team from db query if the user owns any team.
+        """
+        teams_docs = [
+            d for d in db.collection("teams").where("ownerId", "==", owner).stream()
+        ]
+        if len(teams_docs):
+            self.athletes = teams_docs[0].to_dict()["athletes"]
+            for t in db.collection("teams/" + teams_docs[0].id + "/trainings").stream():
+                training = Training(
+                    name=t.to_dict()["name"],
+                    date=datetime.date.fromtimestamp(t.to_dict()["date"].timestamp()),
+                    discipline=t.to_dict()["discipline"],
+                )
+                for run in db.collection(
+                    "teams/" + teams_docs[0].id + "/trainings/" + t.id + "/data"
+                ).stream():
+                    training.data.append(
+                        [run.to_dict()["athlete"], run.to_dict()["time"]]
+                    )
+                self.trainings.append(training)
 
     def add_athlete(self, name):
         """
@@ -51,7 +76,7 @@ class Team:
         Remove from trainings the selected training.
         """
         self.trainings.pop(i)
-    
+
     def select_training(self, i):
         """
         Save current training if it is not empty.
@@ -72,36 +97,52 @@ class Team:
     def trainings_df(self):
         """
         Create DataFrame to contain all runs of each training.
-        """        
+        """
         data = []
         for i in range(len(self.trainings)):
-            data += [[
-                i,
-                self.trainings[i].date,
-                self.trainings[i].name,
-                self.trainings[i].discipline,
-                j,
-                self.trainings[i].data[j][0],
-                self.trainings[i].data[j][1],
-            ] for j in range(len(self.trainings[i].data))]
+            data += [
+                [
+                    i,
+                    self.trainings[i].date,
+                    self.trainings[i].name,
+                    self.trainings[i].discipline,
+                    j,
+                    self.trainings[i].data[j][0],
+                    self.trainings[i].data[j][1],
+                ]
+                for j in range(len(self.trainings[i].data))
+            ]
 
         return pd.DataFrame(
             data,
-            columns=["id_training", "date", "name", "discipline", "id_run", "athlete", "time"]
+            columns=[
+                "id_training",
+                "date",
+                "name",
+                "discipline",
+                "id_run",
+                "athlete",
+                "time",
+            ],
         )
 
     def trainings_info_df(self):
         """
         Create DataFrame to contain all trainings with relative info ordered by date.
         """
-        data = [[              
-                i,  
+        data = [
+            [
+                i,
                 self.trainings[i].date,
                 self.trainings[i].name,
                 self.trainings[i].discipline,
-        ] for i in range(len(self.trainings))]
+            ]
+            for i in range(len(self.trainings))
+        ]
 
-        df = pd.DataFrame(data, columns=["id_training", "Data", "Nome", "Disciplina"]) # TODO: add #Athletes + #Runs
+        df = pd.DataFrame(
+            data, columns=["id_training", "Data", "Nome", "Disciplina"]
+        )  # TODO: add #Athletes + #Runs
         df = df.sort_values("Data").reset_index(drop=True)
         df.index += 1
         return df
