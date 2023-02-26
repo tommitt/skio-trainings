@@ -13,16 +13,6 @@ else:
 
     st.title("Importa/Esporta Dati 💻")
 
-    # Export data
-    st.header("Esporta dati")
-    if st.button("Allenamenti in CSV", disabled=len(user.team.trainings) == 0):
-        st.download_button(
-            label="Download CSV",
-            data=user.team.trainings_df().to_csv().encode("utf-8"),
-            file_name=datetime.datetime.now().strftime("%Y-%m-%d %H_%M")
-            + " Allenamenti.csv",
-        )
-
     # Load data
     st.header("Importa dati")
     st.markdown(
@@ -34,10 +24,13 @@ else:
 
     st.markdown("***")
 
-    # Delete everything
-    st.header("Cancella dati")
-    st.button(
-        "Elimina tutti i dati",
-        on_click=user.clear_team,
-        disabled=len(user.team.athletes) == 0,
-    )
+    # Export data
+    st.header("Esporta dati")
+    st.markdown("Esporta tutti i dati che hai su Skio:")
+    if st.button("CSV", disabled=len(user.team.trainings) == 0):
+        st.download_button(
+            label="Download CSV",
+            data=user.team.trainings_df().to_csv().encode("utf-8"),
+            file_name=datetime.datetime.now().strftime("%Y-%m-%d %H_%M")
+            + " Allenamenti.csv",
+        )

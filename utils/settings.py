@@ -12,7 +12,7 @@ class Settings:
     @property
     def contact_email(self):
         """Email address displayed as contact"""
-        return "tommytassi@hotmail.it"
+        return "skio.beta@gmail.com"
 
 
 settings = Settings()

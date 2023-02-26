@@ -9,15 +9,16 @@ st.set_page_config(page_title="Skio - Archivia i tuoi allenamenti!", page_icon="
 
 if "user" not in st.session_state:
     # connect to Firestore db
-    try:
-        db = firestore.Client.from_service_account_info(
-            json.loads(st.secrets["firebase"]["firestore"])
-        )
-    except Exception as e:
-        raise Exception("Connection to remote db failed:", e)
+    if "db" not in st.session_state:
+        try:
+            st.session_state.db = firestore.Client.from_service_account_info(
+                json.loads(st.secrets["firebase"]["firestore"])
+            )
+        except Exception as e:
+            raise Exception("Connection to remote db failed:", e)
 
     # login user
-    login_return = login_screen(db)
+    login_return = login_screen()
     if login_return == 0:
         time.sleep(1)
         st.experimental_rerun()

@@ -4,7 +4,7 @@ from classes.user import User
 from utils.settings import settings
 
 
-def login_screen(ref_db):
+def login_screen():
 
     if "signedUp" not in st.session_state:
         st.session_state.signedUp = True
@@ -59,23 +59,22 @@ def login_screen(ref_db):
         if st.button("Login", disabled=(not control_login)):
 
             # check if email is present in users db
-            users_docs = [
-                d
-                for d in ref_db.collection("users")
+            users_docs = (
+                st.session_state.db.collection("users")
                 .where("email", "==", user_email)
-                .stream()
-            ]
-            if len(users_docs):
+                .get()
+            )
+            if len(users_docs) == 1:
                 control_db_password = (
                     user_password == users_docs[0].to_dict()["password"]
                 )
                 # check if password is correct
                 if control_db_password:
                     # login user
-                    st.session_state.user = User(**users_docs[0].to_dict())
-                    st.session_state.user.team.from_query(
-                        db=ref_db, owner=users_docs[0].id
+                    st.session_state.user = User(
+                        id=users_docs[0].id, **users_docs[0].to_dict()
                     )
+                    st.session_state.user.load_team_from_db(owner=users_docs[0].id)
                     st.success("Login effettuato con successo")
                     return 0
                 else:
@@ -85,6 +84,8 @@ def login_screen(ref_db):
                         f"Problemi ad accedere al tuo account? [Contattaci](mailto:{settings.contact_email})!"
                     )
                     # TODO: add "Forgot password?"
+            elif len(users_docs) > 1:
+                raise Exception("User is saved more than once on db")
             else:
                 # user need to sign-up
                 st.session_state.signedUp = False
@@ -125,12 +126,13 @@ def login_screen(ref_db):
                 "region": user_region,
             }
             # save new user into db and create their team
-            _, user_doc = ref_db.collection("users").add(new_user_dict)
-            _, _ = ref_db.collection("teams").add(
+            _, user_doc = st.session_state.db.collection("users").add(new_user_dict)
+            _, team_doc = st.session_state.db.collection("teams").add(
                 {"athletes": [], "ownerId": user_doc.id}
             )
             # login new user
-            st.session_state.user = User(**new_user_dict)
+            st.session_state.user = User(id=user_doc.id, **new_user_dict)
+            st.session_state.user.team.id = team_doc.id
             st.success("Registrazione effettuata con successo")
             return 0
 

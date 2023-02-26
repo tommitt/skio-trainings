@@ -1,11 +1,11 @@
 import streamlit as st
 import datetime
 import pandas as pd
-from utils import st_session_state
 
 
 class Training:
-    def __init__(self, name="", date=datetime.date.today(), discipline="ND"):
+    def __init__(self, id=None, name="", date=datetime.date.today(), discipline="ND"):
+        self.id = id
         self.name = name
         self.date = date
         self.discipline = discipline
@@ -21,14 +21,14 @@ class Training:
                 1000.0 if dnf else round(st.session_state["running_time"], 2),
             ]
         )
-        st_session_state.init_add_fields()
+        st.session_state["running_time"] = 0.0
 
     def clear_last_run(self):
         """
         Clear last inserted run from data and re-initialize session state.
         """
         self.data = self.data[:-1]
-        st_session_state.init_add_fields()
+        st.session_state["running_time"] = 0.0
 
     def display_runs(self):
         """
