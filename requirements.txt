@@ -1,4 +1,1 @@
-streamlit
-pandas
 google-cloud-firestore
-protobuf==3.20.3

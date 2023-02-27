@@ -2,6 +2,7 @@ import streamlit as st
 import datetime
 from classes.user import User
 from screens.error_screens import screen_notLoggedIn
+from utils.settings import settings
 
 st.set_page_config(page_title="Skio - Importa/Esporta Dati", page_icon="❄️")
 
@@ -16,7 +17,7 @@ else:
     # Load data
     st.header("Importa dati")
     st.markdown(
-        "Hai già un archivio dei tuoi dati e vuoi importarli su Skio?\
+        f"Hai già un archivio dei tuoi dati e vuoi importarli su Skio?\
         \nInviaci un sample dei tuoi dati e faremo in modo di automatizzare il processo!\
         \nInviaci una [mail](mailto:{settings.contact_email}) e descrivi come questi dati sono stati raccolti\
         (ricorda di includere l'email con cui ti sei registrato/a se non è la stessa da cui scrivi)."
