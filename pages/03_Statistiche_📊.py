@@ -5,12 +5,12 @@ from utils.statistics_charts import *
 
 st.set_page_config(page_title="Skio - Statistiche", page_icon="❄️")
 
-if 'user' not in st.session_state:
+if "user" not in st.session_state:
     screen_notLoggedIn()
-    
+
 else:
-    user = st.session_state.user # type: User
-    
+    user = st.session_state.user  # type: User
+
     st.title("Statistiche 📊")
 
     # Frame data
@@ -18,7 +18,7 @@ else:
 
     if df.empty:
         st.info("Nessun dato da visualizzare")
-        
+
     else:
         # Team statistics
         st.header("Statistiche di Team")
@@ -26,7 +26,7 @@ else:
         # Number of trainings x discipline
         st.subheader("Allenamenti per Disciplina")
         st.altair_chart(discipline_donut_chart(df), theme="streamlit")
-        
+
         # Athlete statistics
         st.markdown("***")
         st.header("Statistiche per Atleta")
@@ -56,4 +56,3 @@ else:
             \nMostra il tempo ipotetico che ci metterebbe in meno nel primo giro se l'atleta lo facesse al suo massimo potenziale.\
             \nSempre riportato ad un tracciato da un minuto esatto, quindi confrontabile in ogni allenamento."
         )
-
