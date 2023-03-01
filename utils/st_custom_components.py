@@ -23,3 +23,8 @@ def button_withResponseMessage(
                 st.warning(warning_message)
         else:
             st.experimental_rerun()
+
+
+def empty_space(n_lines):
+    for _ in range(n_lines):
+        st.write("&nbsp;")

@@ -19,7 +19,7 @@ else:
     # table with all athletes
     df_athletes = user.team.display_team()
     st.write(df_athletes.style.to_html(), unsafe_allow_html=True)
-    st.markdown("###")
+    st_custom_components.empty_space(1)
 
     # add new athlete
     col1, col2 = st.columns([3, 1])
@@ -74,7 +74,7 @@ else:
         .to_html(),
         unsafe_allow_html=True,
     )
-    st.markdown("###")
+    st_custom_components.empty_space(1)
 
     # interaction with specific training: select or delete
     st.write("ID Allenamento")
@@ -109,8 +109,7 @@ else:
             args=[id_selected],
             use_container_width=True,
         )
-
-    st.markdown("#####")
+    st_custom_components.empty_space(1)
 
     # select a new training
     st.button(
