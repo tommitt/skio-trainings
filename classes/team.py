@@ -1,7 +1,9 @@
-import streamlit as st
 from datetime import datetime
+
 import pandas as pd
+import streamlit as st
 from google.cloud import firestore
+
 from classes.training import Training
 
 

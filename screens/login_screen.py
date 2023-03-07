@@ -1,5 +1,7 @@
-import streamlit as st
 import re
+
+import streamlit as st
+
 from classes.user import User
 from utils.settings import settings
 

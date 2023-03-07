@@ -1,7 +1,9 @@
-import streamlit as st
 import json
 import time
+
+import streamlit as st
 from google.cloud import firestore
+
 from screens.login_screen import login_screen
 from utils.settings import settings
 
