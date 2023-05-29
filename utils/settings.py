@@ -14,5 +14,10 @@ class Settings:
         """Email address displayed as contact"""
         return "skio.beta@gmail.com"
 
+    @property
+    def max_time(self):
+        """Maximum allowed time for athlete runs"""
+        return 180.0
+
 
 settings = Settings()

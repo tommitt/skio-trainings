@@ -5,6 +5,7 @@ import streamlit as st
 from google.cloud import firestore
 
 from classes.training import Training
+from utils import st_session_state
 
 
 class Team:
@@ -127,7 +128,7 @@ class Team:
         if len(self.training.data) > 0 and (self.training.id is None):
             return -1
         else:
-            st.session_state["running_time"] = 0.0
+            st_session_state.init_training()
             self.training = Training() if i == -1 else self.trainings[i]
             return 0
 

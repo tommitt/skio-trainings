@@ -2,6 +2,7 @@ import streamlit as st
 
 from classes.user import User
 from screens.error_screens import screen_notLoggedIn
+from utils import st_custom_components
 from utils.settings import settings
 
 st.set_page_config(page_title="Skio - Aggiunta Allenamento", page_icon="❄️")
@@ -27,7 +28,10 @@ else:
     st.subheader("Tempi Atleti")
 
     st.selectbox("Atleta", options=user.team.athletes, key="running_athlete")
-    st.number_input("Tempo", key="running_time", min_value=0.0, max_value=180.0)
+    st_custom_components.chronometer()
+    st.number_input(
+        "Tempo", key="running_time", min_value=0.0, max_value=settings.max_time
+    )
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
