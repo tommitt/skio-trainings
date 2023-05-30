@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 from google.cloud import firestore
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from classes.training import Training
 from utils import st_session_state
@@ -46,7 +47,7 @@ class Team:
             for training in team_ref.collection("trainings").stream():
                 for data in (
                     training.reference.collection("data")
-                    .where("athlete", "==", old_name)
+                    .where(filter=FieldFilter("athlete", "==", old_name))
                     .stream()
                 ):
                     data.reference.update({"athlete": new_name})

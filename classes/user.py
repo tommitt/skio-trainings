@@ -1,5 +1,8 @@
-import streamlit as st
 import datetime
+
+import streamlit as st
+from google.cloud.firestore_v1.base_query import FieldFilter
+
 from classes.team import Team
 from classes.training import Training
 
@@ -20,7 +23,9 @@ class User:
         Load the team that the user owns from db.
         """
         teams_docs = (
-            st.session_state.db.collection("teams").where("ownerId", "==", owner).get()
+            st.session_state.db.collection("teams")
+            .where(filter=FieldFilter("ownerId", "==", owner))
+            .get()
         )
         if len(teams_docs) == 1:
             self.team.id = teams_docs[0].id

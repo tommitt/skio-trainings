@@ -1,6 +1,7 @@
 import re
 
 import streamlit as st
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from classes.user import User
 from utils.settings import settings
@@ -61,7 +62,7 @@ def login_screen():
             # check if email is present in users db
             users_docs = (
                 st.session_state.db.collection("users")
-                .where("email", "==", user_email)
+                .where(filter=FieldFilter("email", "==", user_email))
                 .get()
             )
             if len(users_docs) == 1:
