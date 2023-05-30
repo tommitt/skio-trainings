@@ -7,7 +7,6 @@ from utils.settings import settings
 
 
 def login_screen():
-
     if "signedUp" not in st.session_state:
         st.session_state.signedUp = True
 
@@ -35,7 +34,7 @@ def login_screen():
         "Estero",
     ]
 
-    st.title("Login/Sign-up to Skio")
+    st.title("Login/signup to Skio")
 
     # Login form
     user_email = st.text_input("Email", placeholder="example@skio.com")
@@ -59,7 +58,6 @@ def login_screen():
     if st.session_state.signedUp:
         # Login button logic
         if st.button("Login", disabled=(not control_login)):
-
             # check if email is present in users db
             users_docs = (
                 st.session_state.db.collection("users")
@@ -94,7 +92,7 @@ def login_screen():
                 st.experimental_rerun()
 
     else:
-        # Sign-up form
+        # Signup form
         st.info("Email non registrata - Registrati come nuovo utente")
 
         repeated_password = st.text_input("Ripeti password", type="password")
@@ -117,7 +115,7 @@ def login_screen():
 
         col1, col2 = st.columns(2)
 
-        # Sign-up button logic
+        # Signup button logic
         if col1.button("Registrati", disabled=(not (control_login & control_signup))):
             new_user_dict = {
                 "email": user_email,
