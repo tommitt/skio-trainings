@@ -83,7 +83,8 @@ def chronometer():
             container.subheader(f"{0.0:.{DECIMAL_SHOWN}f}")
         else:
             run_time = round(
-                st.session_state.chrono_stop_ts - st.session_state.chrono_start_ts, 2
+                st.session_state.chrono_stop_ts - st.session_state.chrono_start_ts,
+                DECIMAL_SHOWN,
             )
             container.subheader(f"{run_time:.{DECIMAL_SHOWN}f}")
 
