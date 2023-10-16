@@ -28,7 +28,7 @@ else:
     st.subheader("Tempi Atleti")
 
     st.selectbox("Atleta", options=user.team.athletes, key="running_athlete")
-    st_custom_components.chronometer()
+    # st_custom_components.chronometer()
     st.number_input(
         "Tempo", key="running_time", min_value=0.0, max_value=settings.max_time
     )
