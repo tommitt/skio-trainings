@@ -1,4 +1,4 @@
-protobuf==3.20.3
+protobuf==4.25.8
 grpcio-status==1.48.2
 urllib3==1.26.19
 google-cloud-firestore
